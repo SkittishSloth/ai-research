@@ -25,3 +25,13 @@ Your task is to create a hard science fiction movie script dealing with time tra
 historical eras need to be accurate - not just "Hollywood" versions of the past, but in all it's gritty, dirty, and
 brutal truth. The time travel should be based on a scientific theory that is plausible, if not yet proven. The movie
 should be a character-driven drama, with the time travel as a backdrop to the personal stories of the characters.
+
+---
+Persona:
+- name
+- title
+- description
+- background
+- capabilities
+- personality
+- prompt

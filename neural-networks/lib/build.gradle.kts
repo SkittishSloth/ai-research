@@ -18,11 +18,8 @@ repositories {
 }
 
 dependencies {
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api("org.apache.commons:commons-math3:3.6.1")
-
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation("com.google.guava:guava:32.1.1-jre")
+    implementation("org.projectlombok:lombok:1.18.28")
+    annotationProcessor("org.projectlombok:lombok:1.18.28")
 }
 
 testing {
@@ -31,6 +28,11 @@ testing {
         val test by getting(JvmTestSuite::class) {
             // Use JUnit Jupiter test framework
             useJUnitJupiter("5.9.3")
+
+            dependencies {
+                implementation("org.projectlombok:lombok:1.18.28")
+                annotationProcessor("org.projectlombok:lombok:1.18.28")
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import skittishsloth.ai.nn.activation.Sigmoid;
 import skittishsloth.ai.nn.loss.LossFunction;
 import skittishsloth.ai.nn.loss.MeanSquaredError;
-import skittishsloth.ai.nn.opt.Optimizer;
+import skittishsloth.ai.nn.opt.OptimizationFunction;
 import skittishsloth.ai.nn.opt.GradientDescent;
 
 public class Driver {
@@ -19,7 +19,7 @@ public class Driver {
         double actual = 0.5;
 
         LossFunction lossFunction = new MeanSquaredError();
-        Optimizer optimizer = new GradientDescent();
+        OptimizationFunction optimizer = new GradientDescent();
         double learningRate = 0.01;
 
         neuron.train(inputs, actual, learningRate, lossFunction, optimizer);

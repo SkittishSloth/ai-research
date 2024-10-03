@@ -2,15 +2,18 @@ package skittishsloth.ai.nn;
 
 import skittishsloth.ai.nn.activation.ActivationFunction;
 import skittishsloth.ai.nn.loss.LossFunction;
-import skittishsloth.ai.nn.opt.Optimizer;
+import skittishsloth.ai.nn.opt.OptimizationFunction;
 
-public class Neuron {
-    private final ActivationFunction activationFunction;
+public class Neuron implements NeuralComponent {
     private final double[] weights;
+    private final ActivationFunction activationFunction;
+    private final LossFunction lossFunction;
+    private final OptimizationFunction optimizationFunction;
+    
+    private double input;
     private double bias;
-    private double output;
 
-    public Neuron(final ActivationFunction activationFunction, final double[] weights, final double bias) {
+    public Neuron(final double[] weights, final double bias, final ActivationFunction activationFunction, final LossFunction lossFunction, final OptimizationFunction optimizationFunction) {
         this.activationFunction = activationFunction;
 
         int length = weights.length;
@@ -18,48 +21,52 @@ public class Neuron {
         System.arraycopy(weights, 0, this.weights, 0, length);
 
         this.bias = bias;
+
+        this.lossFunction = lossFunction;
+        this.optimizationFunction = optimizationFunction;
     }
 
-    public double activate(double[] inputs) {
-        double sum = bias;
-        final int length = inputs.length;
-
-        for (int i = 0; i < length; ++i) {
-            sum += inputs[i] * weights[i];
-        }
+    @Override
+    public double forward(double input) {
+        this.input = input;
+        double sum = 0.0;
         
-        output = activationFunction.apply(sum);
+        for (int i = 0; i < weights.length; i++) {
+            sum += activationFunction.forward(input * weights[i]);
+        
+        }
 
-        return output;
+        return sum + bias;
     }
 
-    public void train(final double[] inputs, final double actual, final double learningRate, final LossFunction lossFunction, final Optimizer optimizer) {
-        final double predicted = activate(inputs);
-        final double error = lossFunction.calculate(predicted, actual);
-        optimizer.updateWeights(this, inputs, error, learningRate);
+    @Override
+    public double backward(double outputGradient) {
+        return activationFunction.backward(input * sumWeights()) * outputGradient;
     }
 
-    public int numberOfWeights() {
-        return weights.length;
+    public void train(double[] inputs, double[] outputs, double learningRate) {
+        for (int i = 0; i < weights.length; i++) {
+            final double loss = error(inputs[i], outputs[i]);
+
+            weights[i] = optimizationFunction.optimize(weights[i], loss, learningRate);
+        }
+
+        bias -= optimizationFunction.optimize(bias, error(inputs[0], outputs[0]), learningRate);
     }
 
-    public double[] weights() {
-        return weights;
+    private double sumWeights() {
+        double sum = 0.0;
+
+        for (int i = 0; i < weights.length; i++) {
+            sum += weights[i];
+        }
+
+        return sum;
     }
 
-    public void incrementWeight(final int index, final double adjustment) {
-        weights[index] += adjustment;
-    }
+    private double error(final double input, final double output) {
+        final double calculated = lossFunction.calculate(input, output);
 
-    public void bias(final double bias) {
-        this.bias = bias;
-    }
-
-    public double bias() {
-        return bias;
-    }
-
-    public double output() {
-        return output;
+        return backward(calculated);
     }
 }

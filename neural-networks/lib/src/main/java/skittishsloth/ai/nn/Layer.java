@@ -1,40 +1,51 @@
 package skittishsloth.ai.nn;
 
-import skittishsloth.ai.nn.activation.ActivationFunction;
-import skittishsloth.ai.nn.loss.LossFunction;
-import skittishsloth.ai.nn.opt.Optimizer;
-
-public class Layer {
+public class Layer implements NeuralComponent {
     private final Neuron[] neurons;
+    private final int numNeurons;
 
-    public Layer(final Neuron[] neurons) {
-        this.neurons = neurons;
-    }
-
-    public Layer(final ActivationFunction activationFunction, final int numNeurons, final int numInputs) {
+    public Layer(final int numNeurons) {
         this.neurons = new Neuron[numNeurons];
+        this.numNeurons = numNeurons;
+    }
+
+    public void setNeuron(final Neuron neuron, final int index) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("Index (" + index + ") cannot be negative");
+        }
+
+        if (index >= numNeurons) {
+            throw new IndexOutOfBoundsException("Index (" + index + ") is out of bounds (numNeurons = " + numNeurons + ")");
+        }
+
+        neurons[index] = neuron;
+    }
+
+    @Override
+    public double forward(double input) {
+        double output = 0.0;
+
         for (int i = 0; i < numNeurons; i++) {
-            double[] weights = new double[numInputs];
-            // Initialize weights randomly (you'll likely want a better initialization strategy)
-            for (int j = 0; j < numInputs; j++) {
-                weights[j] = Math.random() - 0.5; 
-            }
-            double bias = Math.random() - 0.5; // Initialize bias randomly
-            neurons[i] = new Neuron(activationFunction, weights, bias);
+            output += neurons[i].forward(input);
         }
+
+        return output;
     }
 
-    public double[] feedForward(final double[] inputs) {
-        double[] outputs = new double[neurons.length];
-        for (int i = 0; i < neurons.length; i++) {
-            outputs[i] = neurons[i].activate(inputs);
+    @Override
+    public double backward(double outputGradient) {
+        double gradient = 0.0;
+
+        for (int i = 0; i < numNeurons; i++) {
+            gradient += neurons[i].backward(outputGradient);
         }
-        return outputs;
+
+        return gradient;
     }
 
-    public void train(final double[] inputs, final double actual, final double learningRate, final LossFunction lossFunction, final Optimizer optimizer) {
-        for (Neuron neuron : neurons) {
-            neuron.train(inputs, actual, learningRate, lossFunction, optimizer);
+    public void train(double[] inputs, double[] outputs, double learningRate) {
+        for (int i = 0; i < numNeurons; i++) {
+            neurons[i].train(inputs, outputs, learningRate);
         }
     }
 }

@@ -30,6 +30,7 @@ public class ChatService {
     public String generate(final String prompt) {
         return chatClient().prompt()
             .user(prompt)
+            
             .call()
             .content();
     }

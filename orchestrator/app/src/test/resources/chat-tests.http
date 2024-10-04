@@ -1,5 +1,5 @@
 ### Basic Prompt
-POST http://localhost:8080/orchestrator/chat
+POST http://localhost:8080/chat
 Content-Type: text/plain
 
 Hi! My Name is Matthew!
